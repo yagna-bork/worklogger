@@ -1,0 +1,2 @@
+logs_directory=/Users/yaggy/worklogs-test
+editor_command=nvim
