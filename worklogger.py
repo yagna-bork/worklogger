@@ -1,7 +1,7 @@
 import pathlib
 import os
 import subprocess
-import datetime
+from datetime import datetime
 from argparse import ArgumentParser
 
 CONFIG_PATH = pathlib.Path(__file__).parent.resolve() / "config.txt"
@@ -9,7 +9,6 @@ CONFIG = {}
 
 
 def init_config(logs_directory, editor_command):
-    logs_directory = str(pathlib.Path(logs_directory))
     file_content = [
         f"logs_directory={logs_directory}\n",
         f"editor_command={editor_command}\n",
@@ -26,19 +25,26 @@ def read_config():
             CONFIG[k] = v
 
     CONFIG["logs_directory"] = pathlib.Path(CONFIG["logs_directory"])
+    CONFIG["editor_command"] = CONFIG["editor_command"].split(" ")
 
 
 def ensure_today_log_exists():
     # ensure directory exists first
     os.makedirs(CONFIG["logs_directory"], exist_ok=True)
 
-    today = datetime.date.today()
-    today_log = f"{today.day}-{today.month}-{today.year % 100}.log"
+    today_log = datetime.today().strftime("%d-%m-%y.log")
     today_log_path = CONFIG["logs_directory"] / today_log
-    if not os.path.isfile(today_log_path):
-        with open(today_log_path, "w"):
-            pass
+    if os.path.isfile(today_log_path):
+        return today_log_path
+    with open(today_log_path, "w"):
+        pass
     return today_log_path
+
+
+def is_last_line_empty(file_path):
+    with open(file_path, "r") as file:
+        sp_lines = file.read().split(os.linesep)
+        return sp_lines[-1] == ""
 
 
 def main():
@@ -58,6 +64,21 @@ def main():
         action="store_true",
         default=False,
     )
+    parser.add_argument(
+        "-e",
+        "--entry",
+        choices=("+", "="),
+        help="Add a new start or stop entry to today's worklog",
+        dest="entry_mode",
+    )
+    parser.add_argument(
+        "-q",
+        "--no-edit",
+        action="store_false",
+        dest="open_editor",
+        default=True,
+        help="Quit execution before today's worklog gets opened for editing",
+    )
     args = parser.parse_args()
 
     if args.init is not None:
@@ -71,10 +92,17 @@ def main():
         return
 
     read_config()
-
     today_log_path = ensure_today_log_exists()
-    editor_command = CONFIG["editor_command"]
-    subprocess.run([editor_command, today_log_path])
+
+    if args.entry_mode is not None:
+        with open(today_log_path, "a+") as log_file:
+            entry_time = datetime.now().strftime("%H:%M")
+            maybe_newline = "\n" if not is_last_line_empty(today_log_path) else ""
+            log_file.write(maybe_newline + args.entry_mode + entry_time)
+
+    if args.open_editor:
+        editor_command = CONFIG["editor_command"]
+        subprocess.run([*editor_command, today_log_path])
 
 
 if __name__ == "__main__":
