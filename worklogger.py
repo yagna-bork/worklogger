@@ -4,19 +4,12 @@ import sys
 import subprocess
 from datetime import datetime
 from argparse import ArgumentParser
-import initialise
+from initialise import main as initialise_main
+from settings import main as settings_main
+import config
 
 CONFIG_PATH = pathlib.Path(__file__).parent.resolve() / "config.txt"
 CONFIG = {}
-
-
-def init_config(logs_directory, editor_command):
-    file_content = [
-        f"logs_directory={logs_directory}\n",
-        f"editor_command={editor_command}\n",
-    ]
-    with open(CONFIG_PATH, "w") as cfg:
-        cfg.writelines(file_content)
 
 
 def read_config():
@@ -83,6 +76,21 @@ def main():
     # )
     # args = parser.parse_args()
 
+    # Initally only init mode is allowed
+    if not config.is_config_initialised():
+        parser = ArgumentParser()
+        parser.add_argument(
+            "mode",
+            choices=["init"],
+            help=(
+                "Select mode.\n"
+                "init: Initialise configuration. Must be run as the first command\n"
+            ),
+        )
+        parser.parse_args(sys.argv[1:2])
+        initialise_main(sys.argv[2:])
+        return
+
     parser = ArgumentParser()
     parser.add_argument(
         "mode",
@@ -100,7 +108,9 @@ def main():
     unparsed_args = sys.argv[2:]
     match args.mode:
         case "init":
-            initialise.main(unparsed_args)
+            initialise_main(unparsed_args)
+        case "settings":
+            settings_main(unparsed_args)
         case _:
             print("Not yet implemented.")
     return
