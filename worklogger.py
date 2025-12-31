@@ -1,8 +1,10 @@
 import pathlib
 import os
+import sys
 import subprocess
 from datetime import datetime
 from argparse import ArgumentParser
+import initialise
 
 CONFIG_PATH = pathlib.Path(__file__).parent.resolve() / "config.txt"
 CONFIG = {}
@@ -48,38 +50,60 @@ def is_last_line_empty(file_path):
 
 
 def main():
-    config_exists = os.path.isfile(CONFIG_PATH)
+    # config_exists = os.path.isfile(CONFIG_PATH)
+    # parser = ArgumentParser()
+    # parser.add_argument(
+    #    "--init",
+    #    nargs=2,
+    #    required=(not config_exists),
+    #    metavar=("logs_directory", "editor_command"),
+    #    help="Setup program configuration. Required as the initial command",
+    # )
+    # parser.add_argument(
+    #    "--settings",
+    #    help="View program configuration",
+    #    dest="show_settings",
+    #    action="store_true",
+    #    default=False,
+    # )
+    # parser.add_argument(
+    #    "-e",
+    #    "--entry",
+    #    choices=("+", "="),
+    #    help="Add a new start or stop entry to today's worklog",
+    #    dest="entry_mode",
+    # )
+    # parser.add_argument(
+    #    "-q",
+    #    "--no-edit",
+    #    action="store_false",
+    #    dest="open_editor",
+    #    default=True,
+    #    help="Quit execution before today's worklog gets opened for editing",
+    # )
+    # args = parser.parse_args()
+
     parser = ArgumentParser()
     parser.add_argument(
-        "--init",
-        nargs=2,
-        required=(not config_exists),
-        metavar=("logs_directory", "editor_command"),
-        help="Setup program configuration. Required as the initial command",
+        "mode",
+        choices=["init", "settings", "edit", "stats"],
+        help=(
+            "Select mode.\n"
+            "init: Initialise configuration. Must be run as the first command\n"
+            "settings: Edit or see the configuration\n"
+            "edit: Edit today's worklog\n"
+            "stats: See some stats about your worklogs\n"
+        ),
     )
-    parser.add_argument(
-        "--settings",
-        help="View program configuration",
-        dest="show_settings",
-        action="store_true",
-        default=False,
-    )
-    parser.add_argument(
-        "-e",
-        "--entry",
-        choices=("+", "="),
-        help="Add a new start or stop entry to today's worklog",
-        dest="entry_mode",
-    )
-    parser.add_argument(
-        "-q",
-        "--no-edit",
-        action="store_false",
-        dest="open_editor",
-        default=True,
-        help="Quit execution before today's worklog gets opened for editing",
-    )
-    args = parser.parse_args()
+    args = parser.parse_args(sys.argv[1:2])
+
+    unparsed_args = sys.argv[2:]
+    match args.mode:
+        case "init":
+            initialise.main(unparsed_args)
+        case _:
+            print("Not yet implemented.")
+    return
 
     if args.init is not None:
         logs_dir, editor_cmd = args.init
