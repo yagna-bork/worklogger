@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from initialise import main as initialise_main
 from settings import main as settings_main
 from edit import main as edit_main
+from stats import main as stats_main
 import config
 
 
@@ -46,8 +47,8 @@ def main():
             settings_main(unparsed_args)
         case "edit":
             edit_main(unparsed_args)
-        case _:
-            print("Not yet implemented.")
+        case "stats":
+            stats_main(unparsed_args)
 
 
 if __name__ == "__main__":
