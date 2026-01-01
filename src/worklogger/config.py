@@ -4,10 +4,17 @@ import pathlib
 import sys
 import os
 
+PROGRAM_NAME = "worklogger"
+
+# TODO path will have to change in prod env
 _CONFIG_PATH = pathlib.Path(__file__).parent.resolve() / "config.txt"
 _CONFIG = {}
 
-VALID_SETTINGS = ["logs_directory", "editor_command"]
+# user can't configure this at the moment
+_DATE_FMT = "%d-%m-%y"
+_TIME_FMT = "%H:%M"
+
+VALID_SETTINGS = {"logs_directory", "editor_command"}
 
 
 def _read_config():
@@ -34,18 +41,26 @@ def _write_config():
 
 
 def _ensure_config():
+    """Make sure config dictionary is populated before access"""
     if not _CONFIG:
         _read_config()
 
 
-def config(key):
+def get_setting(key):
+    """Get value for key if it's valid from program configuration"""
+    if key not in VALID_SETTINGS:
+        print("Attempted to get invalid config key: ", key, file=sys.stderr)
+        return
+
     _ensure_config()
     return _CONFIG[key]
 
 
-def set_config(key, value):
+def set_setting(key, value):
+    """Set value for key if it's valid in program configuration"""
     if key not in VALID_SETTINGS:
         print("Attempted to set invalid config key: ", key, file=sys.stderr)
+        return
 
     _ensure_config()
     _CONFIG[key] = value
@@ -66,3 +81,11 @@ def init_config(logs_directory, editor_command):
     _CONFIG["logs_directory"] = logs_directory
     _CONFIG["editor_command"] = editor_command
     _write_config()
+
+
+def date_format():
+    return _DATE_FMT
+
+
+def time_format():
+    return _TIME_FMT

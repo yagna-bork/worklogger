@@ -1,17 +1,19 @@
 import sys
 from argparse import ArgumentParser
 
-from initialise import main as initialise_main
-from settings import main as settings_main
-from edit import main as edit_main
-from stats import main as stats_main
-import config
+from .initialise import main as initialise_main
+from .settings import main as settings_main
+from .edit import main as edit_main
+from .stats import main as stats_main
+from . import config
 
 
 def main():
+    parser = ArgumentParser(prog=config.PROGRAM_NAME)
+
     # Initally only init mode is allowed
     if not config.is_config_initialised():
-        parser = ArgumentParser()
+        parser = ArgumentParser(prog="worklogger")
         parser.add_argument(
             "mode",
             choices=["init"],
@@ -25,7 +27,6 @@ def main():
         return
 
     # Once the config is created, the other options are allowed
-    parser = ArgumentParser()
     parser.add_argument(
         "mode",
         choices=["init", "settings", "edit", "stats"],
@@ -49,7 +50,3 @@ def main():
             edit_main(unparsed_args)
         case "stats":
             stats_main(unparsed_args)
-
-
-if __name__ == "__main__":
-    main()

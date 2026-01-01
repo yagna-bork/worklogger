@@ -1,11 +1,11 @@
 import sys
 from argparse import ArgumentParser
 
-import config
+from . import config
 
 
 def main(args):
-    parser = ArgumentParser(usage="worklogger.py settings [-h] [-s, --set]")
+    parser = ArgumentParser(prog=f"{config.PROGRAM_NAME} settings")
     parser.add_argument(
         "-s",
         "--set",
@@ -17,10 +17,12 @@ def main(args):
     )
     args = parser.parse_args(args)
 
+    # no optional args provided
     if args.settings is None:
         config.print_config()
         return
 
+    # change setting for each valid optional arg
     for setting_name, new_value in args.settings:
         if setting_name not in config.VALID_SETTINGS:
             print(
@@ -28,8 +30,4 @@ def main(args):
                 file=sys.stderr,
             )
             continue
-        config.set_config(setting_name, new_value)
-
-
-if "__name__" == "main":
-    print("'settings' is not a script. Use 'worklogger.py' instead")
+        config.set_setting(setting_name, new_value)
