@@ -2,10 +2,10 @@ import datetime
 from argparse import ArgumentParser
 
 from . import config
-from .log import parse_log_file
+from .log import parse_log, LogEntryType
 
 
-def was_any_work_done(log):
+def was_work_done(log):
     first_work_entry_idx = None
     for i, entry in enumerate(log.entries):
         if entry.type != LogEntryType.WORK:
@@ -23,16 +23,23 @@ def was_any_work_done(log):
 def get_day_start_end_length(log):
     start = log.entries[0].datetime
     end = log.entries[-1].datetime
-    length = end - start
+    # in minutes
+    length = (end - start).seconds // 60
     return start, end, length
 
 
 def print_stats_single_date(date):
-    log = get_log(date)
+    log = parse_log(date)
 
-    if not was_any_work_done(log):
+    date_str = config.serialise_date(date)
+    print(date_str)
+    print("-" * len(date_str))
+
+    if not was_work_done(log):
         print(f"No work done on {date.strftime(config.date_format())}")
         return
+
+    print("Rest not yet implemented")
 
     # start of day, end of day, length of day
     start, end, length = get_day_start_end_length(log)
@@ -47,8 +54,7 @@ def print_stats_date_range(from_date, to_date):
 
 
 def main(args):
-    parser = ArgumentParser(prog=f"{config.PROGRAM_NAME} stats")
-    # TODO type conversion
+    parser = ArgumentParser(prog=f"{config.program_name()} stats")
     parser.add_argument(
         "dates",
         nargs="+",
@@ -58,27 +64,13 @@ def main(args):
             "all dates in the inclusive range bounded by both dates."
         ),
         metavar="date",
+        type=config.deserialise_date,
     )
     args = parser.parse_args(args)
 
-    # check correct number of dates supplied
-    num_date_args = len(args.dates)
-    if num_date_args != 1 and num_date_args != 2:
-        parser.print_help()
-        return
-
-    # check all dates have the correct format
-    date_args = []
-    for str_date in args.dates:
-        try:
-            date_arg = datetime.date.strptime(str_date, config.date_format())
-        except ValueError:
-            parser.print_help()
-            return
-        else:
-            date_args.append(date_arg)
-
-    if num_date_args == 1:
-        print_stats_single_date(date_args[0])
+    if len(args.dates) == 1:
+        print_stats_single_date(args.dates[0])
+    elif len(args.dates) == 2:
+        print_stats_date_range(args.dates[0], args.dates[1])
     else:
-        print_stats_date_range(date_args[0], date_args[1])
+        parser.print_help()
