@@ -1,67 +1,8 @@
-import os
-import re
-import sys
 import datetime
 from argparse import ArgumentParser
-from enum import Enum
 
 from . import config
-
-
-class LogEntryType(Enum):
-    WORK = 1
-    BREAK = 2
-
-
-class LogEntry:
-    def __init__(self, type, time, msg):
-        self.type = type
-        self.time = time
-        self.msg = msg
-
-    def __eq__(self, b):
-        return self.type == b.type and self.time == b.time and self.msg == b.msg
-
-
-class Log:
-    def __init__(self, entries=[]):
-        self.entries = entries
-
-
-def get_log(date):
-    log_name = date.strftime(f"{config.date_format()}.log")
-    log_path = config.get_setting("logs_directory") / log_name
-
-    if not os.path.isfile(log_path):
-        return Log()
-
-    entries = []
-    entry_regex = r"^([+=])(.*?) (.*)$"
-    with open(log_path, "r") as log_file:
-        for lineno, line in enumerate(log_file.readlines(), start=1):
-            strp_line = line.strip()
-
-            match = re.match(entry_regex, strp_line)
-            if match is None:
-                if not entries:
-                    print(
-                        f"Skipping invalid entry {log_name}:{lineno}", file=sys.stderr
-                    )
-                else:
-                    # this line must be continuation of previous entry's message
-                    entries[-1].msg += f"\n{strp_line}"
-                continue
-
-            entry_type = (
-                LogEntryType.WORK if match.group(1) == "+" else LogEntryType.BREAK
-            )
-            entry_time_str = match.group(2)
-            entry_time = datetime.time.strptime(entry_time_str, config.time_format())
-
-            entry = LogEntry(entry_type, entry_time, msg=match.group(3))
-            entries.append(entry)
-
-    return Log(entries)
+from .log import parse_log_file
 
 
 def was_any_work_done(log):
@@ -80,21 +21,25 @@ def was_any_work_done(log):
 
 
 def get_day_start_end_length(log):
-    start = log.entries[0].time
-    end = log.entries[-1].time
-    length = None
+    start = log.entries[0].datetime
+    end = log.entries[-1].datetime
+    length = end - start
     return start, end, length
 
 
 def print_stats_single_date(date):
-    # start of day, end of day, length of day
-    # total time worked, total break time, above two as percentages of day
-    # work sessions desc length order
-    # break sessions desc length order
     log = get_log(date)
 
     if not was_any_work_done(log):
-        print(f"No work done on {date}")
+        print(f"No work done on {date.strftime(config.date_format())}")
+        return
+
+    # start of day, end of day, length of day
+    start, end, length = get_day_start_end_length(log)
+
+    # total time worked, total break time, above two as percentages of day
+    # work sessions desc length order
+    # break sessions desc length order
 
 
 def print_stats_date_range(from_date, to_date):
@@ -103,6 +48,7 @@ def print_stats_date_range(from_date, to_date):
 
 def main(args):
     parser = ArgumentParser(prog=f"{config.PROGRAM_NAME} stats")
+    # TODO type conversion
     parser.add_argument(
         "dates",
         nargs="+",

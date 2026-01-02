@@ -1,4 +1,6 @@
 #! /bin/bash
+source venv/bin/activate
+
 # run src/__main__.py and 
 # forward it this script's args
 python3 src ${@}

@@ -9,7 +9,7 @@ from . import config
 
 
 def main():
-    parser = ArgumentParser(prog=config.PROGRAM_NAME)
+    parser = ArgumentParser(prog=config.program_name())
 
     # Initally only init mode is allowed
     if not config.is_config_initialised():
