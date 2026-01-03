@@ -1,4 +1,4 @@
-"""config.py - Module to manage the program config"""
+"""config - Module to manage the program config"""
 
 from pathlib import Path
 import sys
@@ -23,6 +23,11 @@ def valid_settings():
 # TODO user should be able to configure this
 def date_format():
     return "%d-%m-%y"
+
+
+# TODO user should be able to configure this somehow
+def time_format():
+    return "%H:%M"
 
 
 def deserialise_logs_directory(logs_dir: str) -> Path:

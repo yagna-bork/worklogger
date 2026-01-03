@@ -5,6 +5,7 @@ import os
 from enum import StrEnum
 
 from . import config
+from .util import timedelta_hours, timedelta_mins
 
 
 def date_to_datetime(date):
@@ -37,12 +38,11 @@ class LogEntry:
         log_datetime = date_to_datetime(log_date)
 
         delta = entry_datetime - log_datetime
-        delta_seconds = delta.days * 24 * 3600 + delta.seconds
-        delta_hours = delta_seconds // 3600
-        delta_mins = (delta_seconds % 3600) // 60
-
+        delta_hours = timedelta_hours(delta)
+        delta_mins = timedelta_mins(delta)
         hour_zero_padded = str(delta_hours).zfill(2)
         min_zero_padded = str(delta_mins).zfill(2)
+
         return f"{hour_zero_padded}:{min_zero_padded}"
 
     @staticmethod
