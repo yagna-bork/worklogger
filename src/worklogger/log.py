@@ -18,9 +18,9 @@ class LogEntryType(StrEnum):
 
 
 class LogEntry:
-    def __init__(self, type, datetime, msg):
+    def __init__(self, type: LogEntryType, dt: datetime.datetime, msg: str):
         self.type = type
-        self.datetime = datetime
+        self.datetime = dt
         self.msg = msg
 
     def __eq__(self, b):
@@ -55,8 +55,8 @@ class LogEntry:
 
 
 class Log:
-    def __init__(self, date, entries=[]):
-        self.date = date
+    def __init__(self, dt: datetime.date, entries: list[LogEntry] = []):
+        self.date = dt
         self.entries = entries
 
 
