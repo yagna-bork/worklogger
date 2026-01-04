@@ -132,20 +132,20 @@ def duration_to_str(duration: Duration, label: str) -> str:
     return f"{label}: {duration['hours']} hours, {duration['mins']} minutes"
 
 
-def datetime_to_str(log_date: datetime.date, dt: datetime.datetime) -> str:
+def datetime_to_str(dt: datetime.datetime, log: Log) -> str:
     """Str representation with date component if it's different to date of the log"""
     st = ""
     date, time = dt.date(), dt.time()
-    if date != log_date:
+    if date != log.date:
         st += f"{date.strftime(config.date_format())} "
     st += time.strftime(config.time_format())
     return st
 
 
-def print_stats_single_date(date: datetime.date) -> None:
-    log = parse_log(date)
+def print_stats_single_date(dt: datetime.date) -> None:
+    log = parse_log(dt)
 
-    date_str = config.serialise_date(date)
+    date_str = config.serialise_date(log.date)
     print(date_str)
     print("-" * len(date_str))
 
@@ -155,8 +155,8 @@ def print_stats_single_date(date: datetime.date) -> None:
 
     # Start of day, end of day, length of day
     start, end, duration = get_day_start_end_duration(log)
-    print("Started:", datetime_to_str(date, start))
-    print("Ended:", datetime_to_str(date, end))
+    print("Started:", datetime_to_str(start, log))
+    print("Ended:", datetime_to_str(end, log))
     print(duration_to_str(duration, "Duration"))
     print()
 
@@ -187,7 +187,7 @@ def print_stats_single_date(date: datetime.date) -> None:
     for sesh in work_sessions:
         start, end, duration = sesh
         print(
-            f"{datetime_to_str(date, start)} - {datetime_to_str(date, end)}, "
+            f"{datetime_to_str(start, log)} - {datetime_to_str(end, log)}, "
             f"{duration_to_str(duration, 'duration')}"
         )
 
@@ -195,7 +195,7 @@ def print_stats_single_date(date: datetime.date) -> None:
     for sesh in break_sessions:
         start, end, duration = sesh
         print(
-            f"{datetime_to_str(date, start)} - {datetime_to_str(date, end)}, "
+            f"{datetime_to_str(start, log)} - {datetime_to_str(end, log)}, "
             f"{duration_to_str(duration, 'duration')}"
         )
 

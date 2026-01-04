@@ -79,7 +79,7 @@ def main(args):
         with open(log_path, "a+") as log_file:
             entry_type = str(args.entry_type)
             now = datetime.datetime.now()
-            entry_datetime = LogEntry.entry_datetime_str(args.log_date, now)
+            entry_datetime = LogEntry.entry_datetime_to_str(args.log_date, now)
             log_file.write(f"{maybe_newline}{entry_type}{entry_datetime} ")
 
     if args.open_editor:

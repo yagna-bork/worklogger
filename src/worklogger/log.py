@@ -27,7 +27,7 @@ class LogEntry:
         return self.type == b.type and self.datetime == b.datetime and self.msg == b.msg
 
     @staticmethod
-    def entry_datetime_str(log_date, entry_datetime):
+    def entry_datetime_to_str(log_date, entry_datetime):
         """Calculate entry datetime representation for a log file
 
         Log files will store the time delta between the start of
@@ -47,7 +47,7 @@ class LogEntry:
 
     @staticmethod
     def entry_datetime_from_str(log_date, entry_time_str):
-        """Convert from a str returned by `entry_datetime_str()` to a datetime"""
+        """Convert from a str returned by `entry_datetime_to_str()` to a datetime"""
         log_datetime = date_to_datetime(log_date)
         hour_str, min_str = entry_time_str.split(":")
         delta = datetime.timedelta(hours=int(hour_str), minutes=int(min_str))
