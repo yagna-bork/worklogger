@@ -5,3 +5,4 @@ python3 -m pip install -r requirements.txt -t src-copy
 python3 -m zipapp -p "/usr/bin/env python3" -o worklogger src-copy
 
 rm -rf src-copy
+mv worklogger /usr/local/bin

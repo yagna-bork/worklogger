@@ -5,8 +5,7 @@ import sys
 import os
 import datetime
 
-# TODO path will have to change in prod env
-_CONFIG_PATH = Path(__file__).parent.resolve() / "config.txt"
+_CONFIG_PATH = "/usr/local/etc/worklogger.cfg"
 _CONFIG = {}
 
 

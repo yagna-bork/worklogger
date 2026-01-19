@@ -29,7 +29,7 @@ def main():
     # Once the config is created, the other options are allowed
     parser.add_argument(
         "mode",
-        choices=["init", "settings", "edit", "stats"],
+        choices=["settings", "edit", "stats"],
         help=(
             "Select mode.\n"
             "init: Initialise configuration. Must be run as the first command\n"
@@ -42,8 +42,6 @@ def main():
 
     unparsed_args = sys.argv[2:]
     match args.mode:
-        case "init":
-            initialise_main(unparsed_args)
         case "settings":
             settings_main(unparsed_args)
         case "edit":
