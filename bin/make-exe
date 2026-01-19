@@ -1,0 +1,10 @@
+#! /bin/bash
+
+source venv/bin/activate
+cp -r src src-copy
+python -m pip install -r requirements.txt -t src-copy
+python -m zipapp -p python3 -o worklogger src-copy
+
+# clean up
+rm -rf src-copy
+deactivate
